@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>Satyam Studio Pro v7</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="toast">✓</div>
+
+    <!-- TOP BAR -->
+    <div id="top">
+        <div class="logo">
+            <div class="logo-i">🎬</div>
+            <div class="logo-t">Satyam <span>Studio</span><span class="logo-v">PRO</span></div>
+        </div>
+        <div class="modesw">
+            <button class="mbt on" id="imgTab" onclick="setMode('img')">🖼 Image</button>
+            <button class="mbt" id="vidTab" onclick="setMode('vid')">🎬 Video</button>
+        </div>
+        <div class="hbts">
+            <button class="hbt g" onclick="doUndo()" title="Ctrl+Z">↩</button>
+            <button class="hbt g" onclick="doRedo()" title="Ctrl+Y">↪</button>
+            <button class="hbt sv" onclick="trigSave()">⬇ Save</button>
+        </div>
+    </div>
+
+    <div id="body">
+        <div id="cz">
+            <div class="gbg"></div>
+
+            <!-- Image upload -->
+            <div class="ups" id="upI">
+                <div class="u-em">🖼️</div>
+                <div class="u-h">Open Image</div>
+                <div class="u-p">Photoshop · Lightroom · Canva · Figma<br>Snapseed · PicsArt · GIMP · Krita · Procreate</div>
+                <button class="u-bt" onclick="$('iIn').click()">Choose Image</button>
+                <div class="u-fm">JPG · PNG · WebP · GIF · BMP · TIFF · SVG</div>
+                <input type="file" id="iIn" accept="image/*" style="display:none" onchange="loadImg(event)">
+            </div>
+
+            <!-- Video upload -->
+            <div class="ups" id="upV" style="display:none">
+                <div class="u-em">🎬</div>
+                <div class="u-h">Open Video</div>
+                <div class="u-p">CapCut · DaVinci Resolve · KineMaster<br>InShot · Premiere Rush · Alight Motion · VN</div>
+                <button class="u-bt" onclick="$('vIn').click()">Choose Video</button>
+                <div class="u-fm">MP4 · WebM · MOV · AVI · MKV · 3GP</div>
+                <input type="file" id="vIn" accept="video/*" style="display:none" onchange="loadVid(event)">
+            </div>
+
+            <!-- Image preview -->
+            <div id="pw">
+                <img id="pi" alt="" style="display: none;">
+                <canvas id="dc"></canvas>
+                <div id="tl"></div>
+                <!-- CROP OVERLAY -->
+                <div id="cb">
+                    <div class="cl clv1"></div><div class="cl clv2"></div>
+                    <div class="cl clh1"></div><div class="cl clh2"></div>
+                    <div class="ch ch-tl" id="ctl"></div>
+                    <div class="ch ch-tr" id="ctr"></div>
+                    <div class="ch ch-bl" id="cbl"></div>
+                    <div class="ch ch-br" id="cbr"></div>
+                </div>
+            </div>
+
+            <!-- Video -->
+            <div id="vw">
+                <div id="vWrapper" style="position: relative; display: inline-block;">
+                     <video id="ve" playsinline></video>
+                     <div id="vtl"></div>
+                </div>
+                <div id="vctrl">
+                    <div class="sk" id="skBar" onclick="skClick(event)" ontouchstart="skTouch(event)" ontouchmove="skTouch(event)">
+                        <div class="skp" id="skP" style="width:0%"></div>
+                    </div>
+                    <div class="vr">
+                        <button class="vb" onclick="vSkip(-10)">⏮</button>
+                        <button class="vb" onclick="vSkip(-5)">◀</button>
+                        <button class="vb pl" id="plB" onclick="togPlay()">▶</button>
+                        <button class="vb" onclick="vSkip(5)">▶</button>
+                        <button class="vb" onclick="vSkip(10)">⏭</button>
+                        <input type="range" min="0" max="100" value="100" style="width:45px" oninput="setVol(this.value)" id="mainVol">
+                        <button class="vb" id="muteB" onclick="togMute()">🔊</button>
+                        <span class="vt" id="vT">0:00 / 0:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOOL BAR -->
+        <div id="tb"><div class="ts" id="tr"></div></div>
+
+        <!-- PANEL -->
+        <div id="pnl">
+            <div class="ps" id="psc">
+                <div class="pi">
+                    <div class="pb"></div>
+
+                    <!-- AUTO ENHANCE -->
+                    <div class="pnl-s" id="pnl-auto">
+                        <div class="sl">One-Tap Auto Enhance</div>
+                        <div class="auto-row">
+                            <button class="auto-btn capcut" onclick="autoPreset('capcut')"><span class="ai">⚡</span>CapCut</button>
+                            <button class="auto-btn snap" onclick="autoPreset('snap')"><span class="ai">👻</span>Snapchat</button>
+                            <button class="auto-btn lroom" onclick="autoPreset('lightroom')"><span class="ai">🌅</span>Lightroom</button>
+                            <button class="auto-btn picsart" onclick="autoPreset('picsart')"><span class="ai">🎨</span>PicsArt</button>
+                            <button class="auto-btn canva" onclick="autoPreset('canva')"><span class="ai">✨</span>Canva Pop</button>
+                            <button class="auto-btn vsco" onclick="autoPreset('vsco')"><span class="ai">📷</span>VSCO Film</button>
+                            <button class="auto-btn" onclick="autoPreset('snapseed')"><span class="ai">🔍</span>Snapseed</button>
+                            <button class="auto-btn" onclick="autoPreset('insta')"><span class="ai">📸</span>Instagram</button>
+                            <button class="auto-btn krita" onclick="autoPreset('krita')"><span class="ai">🖌</span>Krita Art</button>
+                            <button class="auto-btn" onclick="autoPreset('gimp')"><span class="ai">🖥</span>GIMP Look</button>
+                            <button class="auto-btn" onclick="autoPreset('affinity')"><span class="ai">📐</span>Affinity</button>
+                            <button class="auto-btn" onclick="autoPreset('filmora')"><span class="ai">🎬</span>Filmora</button>
+                        </div>
+                        <div class="sl" style="margin-top:6px;">Fine Tune After Auto</div>
+                        <div class="sg" id="autoAdjGrid"></div>
+                    </div>
+
+                    <!-- ADJUST -->
+                    <div class="pnl-s" id="pnl-adjust">
+                        <div class="sl">Basic Adjustments <button class="rst" onclick="resetAdj()">Reset All</button></div>
+                        <div class="sg" id="adjGrid"></div>
+                        <div class="sl" style="margin-top:10px;">Tone Curve Emulation</div>
+                        <div class="chips" style="margin-bottom:8px;">
+                            <button class="chip on" id="tn-none" onclick="setTone('none',this)">Original</button>
+                            <button class="chip" id="tn-bw" onclick="setTone('bw',this)">B&W</button>
+                            <button class="chip" id="tn-sepia" onclick="setTone('sepia',this)">Sepia</button>
+                            <button class="chip" id="tn-invert" onclick="setTone('invert',this)">Invert</button>
+                            <button class="chip" id="tn-cool" onclick="setTone('cool',this)">❄ Cool</button>
+                            <button class="chip" id="tn-warm" onclick="setTone('warm',this)">🔥 Warm</button>
+                            <button class="chip" id="tn-fade" onclick="setTone('fade',this)">🌫 Fade</button>
+                            <button class="chip" id="tn-noir" onclick="setTone('noir',this)">🌑 Noir</button>
+                            <button class="chip" id="tn-matte" onclick="setTone('matte',this)">📷 Matte</button>
+                            <button class="chip" id="tn-golden" onclick="setTone('golden',this)">🌟 Golden</button>
+                        </div>
+                        <div class="sl">HSL — Hue / Saturation / Luminance</div>
+                        <div class="hsl-grid">
+                            <div class="hsl-chan">
+                                <div class="hsl-label" style="color:#ff6b6b;">Reds</div>
+                                <div class="sr"><div class="sh"><span class="sn">Hue</span><span class="sv" id="hslv_rh">0</span></div><input type="range" min="-30" max="30" value="0" id="hsls_rh" oninput="hslAdj('rh',this)"></div>
+                                <div class="sr"><div class="sh"><span class="sn">Sat</span><span class="sv" id="hslv_rs">0</span></div><input type="range" min="-100" max="100" value="0" id="hsls_rs" oninput="hslAdj('rs',this)"></div>
+                            </div>
+                            <div class="hsl-chan">
+                                <div class="hsl-label" style="color:#2ed573;">Greens</div>
+                                <div class="sr"><div class="sh"><span class="sn">Hue</span><span class="sv" id="hslv_gh">0</span></div><input type="range" min="-30" max="30" value="0" id="hsls_gh" oninput="hslAdj('gh',this)"></div>
+                                <div class="sr"><div class="sh"><span class="sn">Sat</span><span class="sv" id="hslv_gs">0</span></div><input type="range" min="-100" max="100" value="0" id="hsls_gs" oninput="hslAdj('gs',this)"></div>
+                            </div>
+                            <div class="hsl-chan">
+                                <div class="hsl-label" style="color:#3d8bff;">Blues</div>
+                                <div class="sr"><div class="sh"><span class="sn">Hue</span><span class="sv" id="hslv_bh">0</span></div><input type="range" min="-30" max="30" value="0" id="hsls_bh" oninput="hslAdj('bh',this)"></div>
+                                <div class="sr"><div class="sh"><span class="sn">Sat</span><span class="sv" id="hslv_bs">0</span></div><input type="range" min="-100" max="100" value="0" id="hsls_bs" oninput="hslAdj('bs',this)"></div>
+                            </div>
+                        </div>
+                        <div class="sl">Split Toning</div>
+                        <div class="g2" style="margin-bottom:8px;">
+                            <div>
+                                <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">Highlights</div>
+                                <input type="color" id="splHi" value="#ffffff" onchange="applySplitTone()" style="width:100%;height:28px;border-radius:8px;border:1px solid var(--bd);cursor:pointer;background:none;">
+                            </div>
+                            <div>
+                                <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">Shadows</div>
+                                <input type="color" id="splSh" value="#000000" onchange="applySplitTone()" style="width:100%;height:28px;border-radius:8px;border:1px solid var(--bd);cursor:pointer;background:none;">
+                            </div>
+                        </div>
+                        <div class="sr" style="margin-bottom:10px;">
+                            <div class="sh"><span class="sn">Split Tone Strength</span><span class="sv" id="vSplStr">0</span>%</div>
+                            <input type="range" min="0" max="100" value="0" id="sSplStr" oninput="$('vSplStr').textContent=this.value;applySplitTone()">
+                        </div>
+                    </div>
+
+                    <!-- FILTERS -->
+                    <div class="pnl-s" id="pnl-filters">
+                        <div class="sl">Preset Filters</div>
+                        <div class="fr" id="filterRow"></div>
+                        <div class="sl" style="margin-top:12px;">Cinematic LUT Presets</div>
+                        <div class="lut-row" id="lutRow"></div>
+                        <div class="sl" style="margin-top:8px;">Filter Strength</div>
+                        <div class="sr">
+                            <div class="sh"><span class="sn">Intensity</span><span class="sv" id="vFs">100</span>%</div>
+                            <input type="range" min="0" max="100" value="100" id="sFs" oninput="$('vFs').textContent=this.value;applyFilt()">
+                        </div>
+                        <!-- We will implement standard composite operations instead of mix-blend-mode for canvas. For now, we'll keep the UI. -->
+                        <div class="sl" style="margin-top:10px;">Blend Mode (Overlay Layer)</div>
+                        <div class="bm-grid" id="blendGrid"></div>
+                    </div>
+
+                    <!-- SNAPCHAT FILTERS -->
+                    <div class="pnl-s" id="pnl-snap">
+                        <div class="sl">👻 Snapchat Style Filters</div>
+                        <div class="scfr" id="snapRow"></div>
+                        <div class="sl" style="margin-top:12px;">Effect Intensity</div>
+                        <div class="sr">
+                            <div class="sh"><span class="sn">Strength</span><span class="sv" id="vSnap">80</span>%</div>
+                            <input type="range" min="0" max="100" value="80" id="sSnap" oninput="$('vSnap').textContent=this.value;applySnapFilter()">
+                        </div>
+                        <div class="sl" style="margin-top:8px;">Snap Stickers</div>
+                        <div class="chips" style="margin-bottom:8px;">
+                            <button class="chip" onclick="addSnapStickerSet('dog')">🐶 Dog</button>
+                            <button class="chip" onclick="addSnapStickerSet('flower')">🌸 Crown</button>
+                            <button class="chip" onclick="addSnapStickerSet('star')">⭐ Stars</button>
+                            <button class="chip" onclick="addSnapStickerSet('hearts')">💕 Hearts</button>
+                            <button class="chip" onclick="addSnapStickerSet('fire')">🔥 Fire</button>
+                        </div>
+                    </div>
+
+                    <!-- OVERLAY EFFECTS -->
+                    <div class="pnl-s" id="pnl-overlay">
+                        <div class="sl">Visual Overlays & Effects</div>
+                        <div class="overlay-row" id="overlayRow"></div>
+                        <div class="sl" style="margin-top:8px;">Overlay Opacity</div>
+                        <div class="sr" style="margin-bottom:10px;">
+                            <div class="sh"><span class="sn">Opacity</span><span class="sv" id="vOvOp">60</span>%</div>
+                            <input type="range" min="5" max="100" value="60" id="sOvOp" oninput="$('vOvOp').textContent=this.value;applyOverlay()">
+                        </div>
+                        <div class="sl">Gradient Overlays</div>
+                        <div class="grad-row" id="gradRow"></div>
+                        <div class="sl" style="margin-top:8px;">Gradient Opacity</div>
+                        <div class="sr" style="margin-bottom:10px;">
+                            <div class="sh"><span class="sn">Strength</span><span class="sv" id="vGrOp">40</span>%</div>
+                            <input type="range" min="0" max="100" value="40" id="sGrOp" oninput="$('vGrOp').textContent=this.value;applyGradOverlay()">
+                        </div>
+                        <button class="ab danger" onclick="clearOverlays()">🗑 Remove Overlays</button>
+                    </div>
+
+                    <!-- CROP -->
+                    <div class="pnl-s" id="pnl-crop">
+                        <div class="sl">Aspect Ratio</div>
+                        <div class="chips" id="cropChips">
+                            <button class="chip on" onclick="setCropR('free',this)">✦ Free</button>
+                            <button class="chip" onclick="setCropR(1,this)">1:1</button>
+                            <button class="chip" onclick="setCropR(16/9,this)">16:9</button>
+                            <button class="chip" onclick="setCropR(9/16,this)">9:16 Reel</button>
+                            <button class="chip" onclick="setCropR(4/3,this)">4:3</button>
+                            <button class="chip" onclick="setCropR(3/4,this)">3:4</button>
+                            <button class="chip" onclick="setCropR(3/2,this)">3:2</button>
+                            <button class="chip" onclick="setCropR(2/3,this)">2:3</button>
+                            <button class="chip" onclick="setCropR(5/4,this)">5:4</button>
+                            <button class="chip" onclick="setCropR(1/1,this)">Instagram</button>
+                            <button class="chip" onclick="setCropR(2.39,this)">2.39:1 Cine</button>
+                        </div>
+                        <div class="g2" style="margin-top:10px;">
+                            <button class="ab acc" onclick="applyCrop()">✂ Apply Crop</button>
+                            <button class="ab" onclick="cancelCrop()">Cancel</button>
+                        </div>
+                        <div class="sl" style="margin-top:10px;">Quick Resize</div>
+                        <div class="g2">
+                            <div>
+                                <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">Width (px)</div>
+                                <input type="number" id="resW" class="tin" placeholder="e.g. 1920" style="height:36px;padding:4px 8px;">
+                            </div>
+                            <div>
+                                <div style="font-size:10px;color:var(--mu);margin-bottom:4px;">Height (px)</div>
+                                <input type="number" id="resH" class="tin" placeholder="e.g. 1080" style="height:36px;padding:4px 8px;">
+                            </div>
+                        </div>
+                        <button class="ab blue" onclick="doResize()" style="margin-top:4px;">↔ Resize Canvas</button>
+                    </div>
+
+                    <!-- TRANSFORM -->
+                    <div class="pnl-s" id="pnl-transform">
+                        <div class="sl">Rotate & Flip</div>
+                        <div class="chips" style="margin-bottom:10px;">
+                            <button class="chip" onclick="doRotate(-90)">↺ Left 90</button>
+                            <button class="chip" onclick="doRotate(90)">↻ Right 90</button>
+                            <button class="chip" onclick="doRotate(180)">↕ 180°</button>
+                            <button class="chip" onclick="doRotate(45)">↻ 45°</button>
+                            <button class="chip" onclick="doFlip('h')">↔ Flip H</button>
+                            <button class="chip" onclick="doFlip('v')">↕ Flip V</button>
+                            <button class="chip" onclick="straighten()">📐 Straighten</button>
+                        </div>
+                        <div class="sg">
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Free Rotate</span><span class="sv" id="vRot">0°</span></div>
+                                <input type="range" min="-180" max="180" value="0" id="sRot" oninput="$('vRot').textContent=this.value+'°';freeRot(this.value)">
+                            </div>
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Scale</span><span class="sv" id="vScale">100</span>%</div>
+                                <input type="range" min="10" max="300" value="100" id="sScale" oninput="$('vScale').textContent=this.value;doScale(this.value)">
+                            </div>
+                            <!-- Skew and perspective left as UI but complex to do natively in basic 2D Canvas without WebGL. We might fake it using transform matrix if possible, or omit the heavy math for vanilla. -->
+                        </div>
+                        <div class="sl" style="margin-top:10px;">Apply Transform</div>
+                        <div class="g2">
+                            <button class="ab acc" onclick="bakeTransform()">✓ Bake Transform</button>
+                            <button class="ab" onclick="resetTransform()">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <!-- TEXT -->
+                    <div class="pnl-s" id="pnl-text">
+                        <div style="display:flex;gap:7px;margin-bottom:8px;">
+                            <textarea class="tin" id="txtIn" rows="2" placeholder="Type text..."></textarea>
+                            <select class="tin" id="txtFont" style="width:115px;">
+                                <option>Outfit</option><option>Impact</option><option>Georgia</option><option>Arial Black</option>
+                                <option>Courier New</option><option>Verdana</option><option>Times New Roman</option>
+                                <option>Comic Sans MS</option><option>Trebuchet MS</option>
+                                <option>Palatino</option><option>Garamond</option><option>Bookman</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                            <div class="szr">
+                                <button class="szb" onclick="afs(-5)">−</button>
+                                <span id="fsd">40</span>px
+                                <button class="szb" onclick="afs(5)">+</button>
+                            </div>
+                            <div class="cstr" style="flex:1;">
+                                <div class="cd on" style="background:#fff" onclick="setTC('#fff',this)"></div>
+                                <div class="cd" style="background:#111;border:1px solid #444" onclick="setTC('#111',this)"></div>
+                                <div class="cd" style="background:#FF4757" onclick="setTC('#FF4757',this)"></div>
+                                <div class="cd" style="background:#FF6B35" onclick="setTC('#FF6B35',this)"></div>
+                                <div class="cd" style="background:#FFD700" onclick="setTC('#FFD700',this)"></div>
+                                <div class="cd" style="background:#2ED573" onclick="setTC('#2ED573',this)"></div>
+                                <div class="cd" style="background:#3D8BFF" onclick="setTC('#3D8BFF',this)"></div>
+                                <div class="cd" style="background:#FF6BB5" onclick="setTC('#FF6BB5',this)"></div>
+                                <div class="cd" style="background:#7C3AED" onclick="setTC('#7C3AED',this)"></div>
+                                <input type="color" value="#ffffff" onchange="setTC(this.value)" style="width:26px;height:26px;border-radius:50%;padding:0;border:2px solid var(--bd);cursor:pointer;background:none;flex-shrink:0;">
+                            </div>
+                        </div>
+                        <div class="chips" style="margin-bottom:8px;flex-wrap:wrap;gap:5px;">
+                            <button class="chip" id="tbld" onclick="togTB()"><b>B</b> Bold</button>
+                            <button class="chip" id="titl" onclick="togTI()"><i>I</i> Italic</button>
+                            <!-- Note: Canvas has limited support for Underline/Strike. We will stroke text for outline/glow. -->
+                            <!-- <button class="chip" id="tunl" onclick="togTU()">U̲ Underline</button> -->
+                            <button class="chip" id="tshd" onclick="togTS()">💧 Shadow</button>
+                            <button class="chip" id="totl" onclick="togTO()">⬜ Outline</button>
+                            <button class="chip" id="tglw" onclick="togTG()">✨ Glow</button>
+                        </div>
+                        <div class="sl">Text Alignment</div>
+                        <div class="chips" style="margin-bottom:8px;">
+                            <button class="chip on" id="ta-left" onclick="setTA('left',this)">⬅ Left</button>
+                            <button class="chip" id="ta-center" onclick="setTA('center',this)">↔ Center</button>
+                            <button class="chip" id="ta-right" onclick="setTA('right',this)">➡ Right</button>
+                        </div>
+                        <button class="ab acc" onclick="addTxt()">＋ Add Text to Image (Draggable)</button>
+                    </div>
+
+                    <!-- STICKERS -->
+                    <div class="pnl-s" id="pnl-stickers">
+                        <div class="sl">Category</div>
+                        <div class="chips" style="margin-bottom:9px;flex-wrap:wrap;">
+                            <button class="chip on" onclick="loadStk('emoji',this)">😊 Emoji</button>
+                            <button class="chip" onclick="loadStk('trending',this)">🔥 Trending</button>
+                            <button class="chip" onclick="loadStk('nature',this)">🌸 Nature</button>
+                            <button class="chip" onclick="loadStk('symbols',this)">⭐ Symbols</button>
+                            <button class="chip" onclick="loadStk('food',this)">🍕 Food</button>
+                            <button class="chip" onclick="loadStk('snap',this)">👻 Snap</button>
+                            <button class="chip" onclick="loadStk('sports',this)">⚽ Sports</button>
+                            <button class="chip" onclick="loadStk('travel',this)">✈ Travel</button>
+                        </div>
+                        <div class="skr" id="stkRow"></div>
+                        <div class="sl" style="margin-top:9px;">Sticker Size & Rotation (Adjust before adding)</div>
+                        <div class="g2">
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Size</span><span class="sv" id="vSsz">60</span>px</div>
+                                <input type="range" min="20" max="200" value="60" id="sSsz" oninput="$('vSsz').textContent=this.value">
+                            </div>
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Rotation</span><span class="sv" id="vSrot">0</span>°</div>
+                                <input type="range" min="-180" max="180" value="0" id="sSrot" oninput="$('vSrot').textContent=this.value">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DRAW -->
+                    <div class="pnl-s" id="pnl-draw">
+                        <div class="sl">Brush Type</div>
+                        <div class="btps" style="margin-bottom:9px;">
+                            <button class="bt on" onclick="setBT('pen',this)">✏ Pen</button>
+                            <button class="bt" onclick="setBT('marker',this)">🖊 Marker</button>
+                            <button class="bt" onclick="setBT('spray',this)">🌫 Spray</button>
+                            <button class="bt" onclick="setBT('neon',this)">💜 Neon</button>
+                            <button class="bt" onclick="setBT('eraser',this)">⬜ Eraser</button>
+                        </div>
+                        <div class="sg" style="margin-bottom:8px;">
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Size</span><span class="sv" id="vBs">10</span>px</div>
+                                <input type="range" min="1" max="120" value="10" id="sBs" oninput="$('vBs').textContent=this.value">
+                            </div>
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Opacity</span><span class="sv" id="vBo">100</span>%</div>
+                                <input type="range" min="5" max="100" value="100" id="sBo" oninput="$('vBo').textContent=this.value">
+                            </div>
+                        </div>
+                        <div class="cstr">
+                            <div class="cd on" style="background:#FF4757" onclick="setBC('#FF4757',this)"></div>
+                            <div class="cd" style="background:#FF6B35" onclick="setBC('#FF6B35',this)"></div>
+                            <div class="cd" style="background:#FFD700" onclick="setBC('#FFD700',this)"></div>
+                            <div class="cd" style="background:#2ED573" onclick="setBC('#2ED573',this)"></div>
+                            <div class="cd" style="background:#3D8BFF" onclick="setBC('#3D8BFF',this)"></div>
+                            <div class="cd" style="background:#7C3AED" onclick="setBC('#7C3AED',this)"></div>
+                            <div class="cd" style="background:#FF6BB5" onclick="setBC('#FF6BB5',this)"></div>
+                            <div class="cd" style="background:#fff" onclick="setBC('#fff',this)"></div>
+                            <div class="cd" style="background:#111;border:1px solid #444" onclick="setBC('#111',this)"></div>
+                            <input type="color" id="bcP" value="#FF4757" onchange="setBC(this.value)" style="width:26px;height:26px;border-radius:50%;padding:0;border:2px solid var(--bd);cursor:pointer;background:none;">
+                        </div>
+                        <div class="g2" style="margin-top:8px;">
+                            <button class="ab danger" onclick="clearDraw()">🗑 Clear Drawing</button>
+                            <button class="ab" onclick="drawFlatten()">✓ Bake to Image</button>
+                        </div>
+                    </div>
+                    
+                    <!-- BEAUTY -->
+                    <div class="pnl-s" id="pnl-beauty">
+                        <div class="sl">Beauty & Retouch</div>
+                        <div class="sg" id="beautyGrid"></div>
+                        <div class="sl" style="margin-top:10px;">Quick Beauty Presets</div>
+                        <div class="g2">
+                            <button class="ab" onclick="qBeauty('smooth')">😊 Smooth Skin</button>
+                            <button class="ab" onclick="qBeauty('glow')">✨ Skin Glow</button>
+                            <button class="ab" onclick="qBeauty('bright')">☀ Brighten</button>
+                            <button class="ab" onclick="qBeauty('hdr')">🌈 HDR Boost</button>
+                        </div>
+                    </div>
+
+                    <!-- FRAME & BORDER -->
+                    <div class="pnl-s" id="pnl-frame">
+                        <div class="sl">Border Category</div>
+                        <div id="borderCatChips" style="display:flex;overflow-x:auto;gap:6px;padding-bottom:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x;margin-bottom:6px;flex-shrink:0;"></div>
+
+                        <div class="sl">Choose Border <button class="rst" onclick="clearBorder()">✕ Remove</button></div>
+                        <div id="borderList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin-bottom:12px;"></div>
+
+                        <div class="sl">Border Width</div>
+                        <div class="sr" style="margin-bottom:8px;">
+                            <div class="sh"><span class="sn">Width</span><span class="sv" id="vBW">20</span>px</div>
+                            <input type="range" min="4" max="120" value="20" id="sBW" oninput="$('vBW').textContent=this.value;previewBorder()">
+                        </div>
+                        <div class="sl">Border Color</div>
+                        <div class="pal-row" style="margin-bottom:10px;flex-wrap:wrap;">
+                            <div class="pal-c on" style="background:#fff" onclick="setFrameColor('#fff',this)"></div>
+                            <div class="pal-c" style="background:#000" onclick="setFrameColor('#000',this)"></div>
+                            <div class="pal-c" style="background:#FF4757" onclick="setFrameColor('#FF4757',this)"></div>
+                            <div class="pal-c" style="background:#FFD700" onclick="setFrameColor('#FFD700',this)"></div>
+                            <div class="pal-c" style="background:#3D8BFF" onclick="setFrameColor('#3D8BFF',this)"></div>
+                            <div class="pal-c" style="background:#2ED573" onclick="setFrameColor('#2ED573',this)"></div>
+                            <input type="color" value="#ffffff" onchange="setFrameColor(this.value)" style="width:28px;height:28px;border-radius:50%;padding:0;border:2px solid var(--bd);cursor:pointer;background:none;">
+                        </div>
+                        <button class="ab acc" onclick="bakeBorder()">✓ Apply Border to Image</button>
+                        <button class="ab danger" onclick="clearBorder()" style="margin-top:5px;">✕ Remove Border</button>
+                    </div>
+
+                    <!-- WATERMARK -->
+                    <div class="pnl-s" id="pnl-watermark">
+                        <div class="sl">Watermark Text</div>
+                        <input type="text" id="wmTxt" class="tin" placeholder="© Your Name / Satyam Studio" style="margin-bottom:8px;">
+                        <div class="sg" style="margin-bottom:8px;">
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Size</span><span class="sv" id="vWMs">16</span>px</div>
+                                <input type="range" min="8" max="80" value="16" id="sWMs" oninput="$('vWMs').textContent=this.value;previewWM()">
+                            </div>
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Opacity</span><span class="sv" id="vWMo">50</span>%</div>
+                                <input type="range" min="5" max="100" value="50" id="sWMo" oninput="$('vWMo').textContent=this.value;previewWM()">
+                            </div>
+                        </div>
+                        <div class="sl">Position</div>
+                        <div class="chips" style="margin-bottom:8px;">
+                            <button class="chip" onclick="setWMPos('tl',this)">↖ Top Left</button>
+                            <button class="chip" onclick="setWMPos('tr',this)">↗ Top Right</button>
+                            <button class="chip on" id="wmp-br" onclick="setWMPos('br',this)">↘ Bot Right</button>
+                            <button class="chip" onclick="setWMPos('bl',this)">↙ Bot Left</button>
+                            <button class="chip" onclick="setWMPos('c',this)">✦ Center</button>
+                        </div>
+                        <div class="sl">Color</div>
+                        <div class="pal-row">
+                            <div class="pal-c on" style="background:#fff" onclick="setWMColor('#fff',this)"></div>
+                            <div class="pal-c" style="background:#000" onclick="setWMColor('#000',this)"></div>
+                            <div class="pal-c" style="background:#FFD700" onclick="setWMColor('#FFD700',this)"></div>
+                            <input type="color" value="#ffffff" onchange="setWMColor(this.value)" style="width:28px;height:28px;border-radius:50%;padding:0;border:2px solid var(--bd);cursor:pointer;background:none;">
+                        </div>
+                        <button class="ab acc" style="margin-top:8px;" onclick="applyWatermark()">✓ Add Watermark</button>
+                    </div>
+                    
+                    <!-- HISTOGRAM -->
+                    <div class="pnl-s" id="pnl-histogram">
+                        <div class="sl">Live Histogram</div>
+                        <canvas id="histCanvas"></canvas>
+                        <div class="info-bar" id="imgInfoBar">
+                            <div class="info-item"><strong id="iW">—</strong>Width</div>
+                            <div class="info-item"><strong id="iH">—</strong>Height</div>
+                            <div class="info-item"><strong id="iDPI">72</strong>DPI</div>
+                        </div>
+                        <button class="ab" style="margin-top:8px;" onclick="updateHistogram()">🔄 Refresh Stats</button>
+                    </div>
+
+                    <!-- EXPORT IMAGE -->
+                    <div class="pnl-s" id="pnl-export">
+                        <div class="sl">Resolution</div>
+                        <div class="qg">
+                            <div class="qb on" id="q-orig" onclick="setQ('orig',this)">Original</div>
+                            <div class="qb" id="q-hd" onclick="setQ('hd',this)">HD</div>
+                            <div class="qb" id="q-2k" onclick="setQ('2k',this)">2K</div>
+                            <div class="qb" id="q-4k" onclick="setQ('4k',this)">4K</div>
+                        </div>
+                        <div class="sl">Format</div>
+                        <div class="fmtr">
+                            <button class="fmtb on" id="f-jpeg" onclick="setFmt('jpeg',this)">JPG</button>
+                            <button class="fmtb" id="f-png" onclick="setFmt('png',this)">PNG</button>
+                            <button class="fmtb" id="f-webp" onclick="setFmt('webp',this)">WebP</button>
+                        </div>
+                        <div class="sr" style="margin-bottom:10px;">
+                            <div class="sh"><span class="sn">Quality</span><span class="sv" id="vQ">92</span>%</div>
+                            <input type="range" min="50" max="100" value="92" id="sQ" oninput="$('vQ').textContent=this.value">
+                        </div>
+                        <button class="ab acc" onclick="dlImg()">⬇ Download Image</button>
+                    </div>
+
+                    <!-- ===== VIDEO PANELS ===== -->
+                    <div class="pnl-s" id="pnl-vplay">
+                        <div class="sl">Playback Speed</div>
+                        <div class="chips" id="spdChips">
+                            <button class="chip" onclick="setSpd(0.5,this)">0.5×</button>
+                            <button class="chip on" onclick="setSpd(1,this)">1×</button>
+                            <button class="chip" onclick="setSpd(1.5,this)">1.5×</button>
+                            <button class="chip" onclick="setSpd(2,this)">2×</button>
+                        </div>
+                        <div class="sl" style="margin-top:10px;">Volume</div>
+                        <div class="sr" style="margin-bottom:8px;">
+                            <div class="sh"><span class="sn">Volume Level</span><span class="sv" id="vVol">100</span>%</div>
+                            <input type="range" min="0" max="100" value="100" id="sVol" oninput="$('vVol').textContent=this.value;setVol(this.value)">
+                        </div>
+                    </div>
+
+                    <div class="pnl-s" id="pnl-vadjust">
+                        <div class="sl">Video Adjust <button class="rst" onclick="resetVAdj()">Reset</button></div>
+                        <div class="sg" id="vadjGrid"></div>
+                        <div class="sl" style="margin-top:10px;">Video Presets</div>
+                        <div class="chips" style="flex-wrap:wrap;gap:5px;">
+                            <button class="chip" onclick="vPre('cinema')">🎬 Cinema</button>
+                            <button class="chip" onclick="vPre('warm')">🌅 Warm</button>
+                            <button class="chip" onclick="vPre('cool')">❄ Cool</button>
+                            <button class="chip" onclick="vPre('vivid')">⚡ Vivid</button>
+                            <button class="chip" onclick="vPre('bw')">⬛ B&W</button>
+                        </div>
+                    </div>
+
+                    <div class="pnl-s" id="pnl-vtrim">
+                        <div class="sl">Trim / Cut</div>
+                        <div class="tinfo">
+                            <div class="ti-i">IN Point<span id="tiIN">—</span></div>
+                            <div class="ti-i">OUT Point<span id="tiOUT">—</span></div>
+                            <div class="ti-i">Duration<span id="tiDUR">—</span></div>
+                        </div>
+                        <div class="g2" style="margin-bottom:6px;">
+                            <button class="ab" style="border-color:var(--gn);color:var(--gn);" onclick="setIn()">🟢 Set IN</button>
+                            <button class="ab" style="border-color:var(--ac);color:var(--ac);" onclick="setOut()">🔴 Set OUT</button>
+                        </div>
+                        <div class="g2">
+                            <button class="ab" onclick="resetTrim()">↺ Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="pnl-s" id="pnl-vtext">
+                        <textarea class="tin" id="vtIn" rows="2" placeholder="Video text overlay..." style="margin-bottom:8px;"></textarea>
+                        <div class="sg" style="margin-bottom:8px;">
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Font Size</span><span class="sv" id="vVfs">36</span>px</div>
+                                <input type="range" min="12" max="200" value="36" id="sVfs" oninput="$('vVfs').textContent=this.value;applyVT()">
+                            </div>
+                            <div class="sr">
+                                <div class="sh"><span class="sn">Position Y</span><span class="sv" id="vVpy">50</span>%</div>
+                                <input type="range" min="5" max="95" value="50" id="sVpy" oninput="$('vVpy').textContent=this.value;applyVT()">
+                            </div>
+                        </div>
+                        <div class="cstr" style="margin-bottom:8px;">
+                            <div class="cd on" style="background:#fff" onclick="setVC('#fff',this)"></div>
+                            <div class="cd" style="background:#FF4757" onclick="setVC('#FF4757',this)"></div>
+                            <div class="cd" style="background:#FFD700" onclick="setVC('#FFD700',this)"></div>
+                            <div class="cd" style="background:#3D8BFF" onclick="setVC('#3D8BFF',this)"></div>
+                        </div>
+                        <div class="sl">Text Style</div>
+                        <div class="chips" style="margin-bottom:8px;">
+                            <button class="chip on" id="vts-normal" onclick="setVTS('normal',this)">Normal</button>
+                            <button class="chip" id="vts-shadow" onclick="setVTS('shadow',this)">Shadow</button>
+                            <button class="chip" id="vts-glow" onclick="setVTS('glow',this)">Neon Glow</button>
+                        </div>
+                        <div class="g2">
+                            <button class="ab acc" onclick="applyVT()">Apply Text</button>
+                            <button class="ab danger" onclick="clearVT()">Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="pnl-s" id="pnl-vexport">
+                        <div class="sl">Video Export Options</div>
+                        <button class="ab acc" onclick="dlFrame()" style="margin-bottom:7px;">📸 Save Current Frame (Image)</button>
+                        <div style="background:var(--p2);border:1px solid var(--bd);border-radius:11px;padding:10px;margin-top:8px;margin-bottom:7px;">
+                            <div style="font-size:11px;font-weight:700;color:var(--ac);margin-bottom:6px;">⚡ Smart Export (with filters applied)</div>
+                            <div style="font-size:10px;color:var(--mu);margin-bottom:8px;">Records video with all visual effects applied. Press Stop when done.</div>
+                            <button class="ab blue" onclick="recVid()" id="recVidBtn">⏺ Start Recording & Save</button>
+                            <div id="recSt" style="display:none;text-align:center;padding:9px;font-size:13px;color:var(--ac);">
+                                ⏺ Recording... <span id="recT">0s</span> &nbsp;
+                                <button class="chip on" onclick="stopRec()" style="display:inline-flex;">■ Stop & Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The missing JS Logic will go here to drive the UI -->
+    <script src="app.js"></script>
+</body>
+</html>
